@@ -1,30 +1,27 @@
 import './Sidebar.css';
-import { MOCK_DOCS } from '../Mockdata';
 import { AiFillHome } from "react-icons/ai";
 import { BsChatLeftDotsFill } from "react-icons/bs";
 import { TbNotes } from "react-icons/tb";
 import { PiExam } from "react-icons/pi";
-import { FaSearch } from "react-icons/fa";
+import { FaSearch, FaFolder } from "react-icons/fa";
 
+const NAV_ITEMS = [
+  { id: 'home',    label: 'Home',      icon: <AiFillHome /> },
+  { id: 'chat',    label: 'Ask AI',    icon: <BsChatLeftDotsFill /> },
+  { id: 'summary', label: 'Summary',   icon: <TbNotes /> },
+  { id: 'quiz',    label: 'Quiz',      icon: <PiExam /> },
+  { id: 'search',  label: 'Search',    icon: <FaSearch /> },
+];
 
-
-
-export default function Sidebar({ activeDoc, setActiveDoc, activeView, setActiveView, user, onLogout, onUpload, isOpen }) {
-  const navItems = [
-    { id: 'home',    label: 'Home',    icon: <AiFillHome /> },
-    { id: 'chat',    label: 'Ask AI',  icon: <BsChatLeftDotsFill /> },
-    { id: 'summary', label: 'Summary', icon: <TbNotes /> },
-    { id: 'quiz',    label: 'Quiz',    icon: <PiExam />},
-    { id: 'search',  label: 'Search',  icon: <FaSearch />},
-  ];
-
+export default function Sidebar({ activeView, setActiveView, user,  isOpen }) {
   return (
     <aside className={`sidebar ${isOpen ? 'sidebar--open' : ''}`}>
+
       <div className="sidebar__logo">
         <img src="/cornPDF_logo.png" alt="cornPDF logo" />
       </div>
 
-      <button className="sidebar__upload-btn" onClick={onUpload}>
+      <button className="sidebar__upload-btn" onClick={() => setActiveView('docs')}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <line x1="12" y1="5" x2="12" y2="19" />
           <line x1="5" y1="12" x2="19" y2="12" />
@@ -34,7 +31,7 @@ export default function Sidebar({ activeDoc, setActiveDoc, activeView, setActive
 
       <div className="sidebar__section-title">Navigation</div>
       <nav className="sidebar__nav">
-        {navItems.map(item => (
+        {NAV_ITEMS.map(item => (
           <button
             key={item.id}
             className={`sidebar__nav-item ${activeView === item.id ? 'sidebar__nav-item--active' : ''}`}
@@ -44,28 +41,18 @@ export default function Sidebar({ activeDoc, setActiveDoc, activeView, setActive
             {item.label}
           </button>
         ))}
+
+        {/* Documents button */}
+        <button
+          className={`sidebar__nav-item ${activeView === 'docs' ? 'sidebar__nav-item--active' : ''}`}
+          onClick={() => setActiveView('docs')}
+        >
+          <div className="sidebar__nav-item-icon"><FaFolder /></div>
+          My Documents
+        </button>
       </nav>
 
-      <div className="sidebar__section-title" style={{ marginTop: '0.5rem' }}>Your Documents</div>
-      <div className="sidebar__docs">
-        {MOCK_DOCS.map(doc => (
-          <button
-            key={doc.id}
-            className={`sidebar__doc-item ${activeDoc?.id === doc.id ? 'sidebar__doc-item--active' : ''}`}
-            onClick={() => { setActiveDoc(doc); setActiveView('chat'); }}
-          >
-            <div className="sidebar__doc-icon" style={{ background: `linear-gradient(135deg, ${doc.color}, ${doc.color}88)` }}>
-              {doc.emoji}
-            </div>
-            <div>
-              <div className="sidebar__doc-name">{doc.name.split('—')[0].trim()}</div>
-              <div className="sidebar__doc-date">{doc.date}</div>
-            </div>
-          </button>
-        ))}
-      </div>
-
-      <div className="premium-banner">
+      <div className="premium-banner" style={{ marginTop: 'auto' }}>
         <div>
           <div className="premium-banner__text">⚡ Premium</div>
           <div className="premium-banner__price">$19 / month</div>
@@ -73,8 +60,6 @@ export default function Sidebar({ activeDoc, setActiveDoc, activeView, setActive
         <button className="premium-banner__btn">›</button>
       </div>
 
-      
     </aside>
   );
 }
-

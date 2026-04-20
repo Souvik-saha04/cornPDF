@@ -7,32 +7,26 @@ import ChatPanel from "./components/ChatPanel/Chatpanel";
 import SummaryPanel from "./components/SummaryPanel/Summarypanel";
 import QuizPanel from "./components/QuizPanel/Quizpanel";
 import SearchPanel from "./components/SearchPanel/Searchpanel";
+import DocsPanel from "./components/DocsPanel/DocsPanel";
 import { MOCK_DOCS } from "./components/Mockdata";
 
-export default function Dashboard({ user, onLogout }) {
+export default function Dashboard({ user }) {
   const [activeDoc,   setActiveDoc]   = useState(MOCK_DOCS[0]);
   const [activeView,  setActiveView]  = useState('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const handleUpload = () => {
-    setActiveDoc(MOCK_DOCS[0]);
-    setActiveView('chat');
-  };
 
   const handleDocSelect = (doc) => {
     setActiveDoc(doc);
     setActiveView('chat');
   };
 
-  const renderPanel = () => {
-    switch (activeView) {
-      case 'home':    return <HomePanel    onDocSelect={handleDocSelect} onUpload={handleUpload} />;
-      case 'chat':    return <ChatPanel    doc={activeDoc} userName={user?.name} />;
-      case 'summary': return <SummaryPanel doc={activeDoc} />;
-      case 'quiz':    return <QuizPanel    doc={activeDoc} />;
-      case 'search':  return <SearchPanel />;
-      default:        return null;
-    }
+  const panels = {
+    home:    <HomePanel onDocSelect={handleDocSelect} onUpload={() => setActiveView('chat')} />,
+    chat:    <ChatPanel doc={activeDoc} userName={user?.name} />,
+    summary: <SummaryPanel doc={activeDoc} />,
+    quiz:    <QuizPanel doc={activeDoc} />,
+    search:  <SearchPanel />,
+    docs:    <DocsPanel docs={MOCK_DOCS} onDocSelect={handleDocSelect} />,
   };
 
   return (
@@ -45,26 +39,17 @@ export default function Dashboard({ user, onLogout }) {
         </svg>
       </button>
 
-      {sidebarOpen && (
-        <div
-          className="sidebar__overlay"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-        
+      {sidebarOpen && <div className="sidebar__overlay" onClick={() => setSidebarOpen(false)} />}
+
       <Sidebar
-        activeDoc={activeDoc}
-        setActiveDoc={setActiveDoc}
         activeView={activeView}
         setActiveView={setActiveView}
         user={user}
-        onLogout={onLogout}
-        onUpload={handleUpload}
         isOpen={sidebarOpen}
       />
-      
+
       <main className="dashboard__main">
-        {renderPanel()}
+        {panels[activeView] ?? null}
       </main>
     </div>
   );

@@ -1,5 +1,12 @@
 import { useState } from "react";
 import "./Login.css";
+import {
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
+import { auth } from "../../firebase/config";
+import { useNavigate } from "react-router-dom";
 
 const GoogleIcon = () => (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -10,15 +17,63 @@ const GoogleIcon = () => (
   </svg>
 );
 
-export default function Login({ onNavigate }) {
-  const [form, setForm] = useState({ username: "", password: "" });
-
+export function Login({ onNavigate }) {
+  const [form, setForm] = useState({ email: "", password: "" });
+  const navigate=useNavigate();
   const handleChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-  const handleSubmit = (e) => {
+  const loginwithemail = async (e) => {
     e.preventDefault();
-    // handle login logic here
+
+    try {
+      const userCred = await signInWithEmailAndPassword(
+        auth,
+        form.email,
+        form.password
+      );
+
+      const token = await userCred.user.getIdToken();
+
+      await fetch("http://127.0.0.1:8000/user/auth/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      localStorage.setItem("token", token);
+      console.log(token);
+
+      navigate('/dashboard'); // optional redirect
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const loginwithGoogle = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+
+      const result = await signInWithPopup(auth, provider);
+
+      const token = await result.user.getIdToken();
+
+      await fetch("http://127.0.0.1:8000/user/auth/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      localStorage.setItem("token", token);
+
+      onNavigate?.("dashboard");
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -27,37 +82,46 @@ export default function Login({ onNavigate }) {
 
       <div className="login-card">
         <div className="login-logo">
-          <div className="login-logo-icon">🌽</div>
-          corn<span className="login-logo-accent">PDF</span>
+          <img src="cornPDF_logo.png" alt="logo" />
         </div>
 
         <h1 className="login-title">Welcome back</h1>
-        <p className="login-subtitle">Log in to your account to continue</p>
+        <p className="login-subtitle">
+          Log in to your account to continue
+        </p>
 
-        <button className="login-google-btn" type="button">
+        <button
+          className="login-google-btn"
+          type="button"
+          onClick={loginwithGoogle}
+        >
           <GoogleIcon />
           Continue with Google
         </button>
 
-        <div className="login-divider">or sign in with username</div>
+        <div className="login-divider">or sign in with email</div>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={loginwithemail}>
           <div className="login-field">
-            <label className="login-label" htmlFor="login-username">Username</label>
+            <label className="login-label" htmlFor="login-email">
+              Email
+            </label>
             <input
-              id="login-username"
+              id="login-email"
               className="login-input"
-              type="text"
-              name="username"
-              placeholder="your_username"
-              autoComplete="username"
-              value={form.username}
+              type="email"
+              name="email"
+              placeholder="your@email.com"
+              autoComplete="email"
+              value={form.email}
               onChange={handleChange}
             />
           </div>
 
           <div className="login-field">
-            <label className="login-label" htmlFor="login-password">Password</label>
+            <label className="login-label" htmlFor="login-password">
+              Password
+            </label>
             <input
               id="login-password"
               className="login-input"
@@ -71,15 +135,22 @@ export default function Login({ onNavigate }) {
           </div>
 
           <div className="login-meta-row">
-            <button type="button" className="login-forgot">Forgot password?</button>
+            <button type="button" className="login-forgot">
+              Forgot password?
+            </button>
           </div>
 
-          <button className="login-primary-btn" type="submit">Log In</button>
+          <button className="login-primary-btn" type="submit">
+            Log In
+          </button>
         </form>
 
         <p className="login-footer">
           Don't have an account?{" "}
-          <button className="login-footer-link" onClick={() => onNavigate?.("signup")}>
+          <button
+            className="login-footer-link"
+            onClick={() => navigate('/signup')}
+          >
             Sign up
           </button>
         </p>

@@ -15,11 +15,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { signOut } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
+import { auth } from '@/firebase/config';
+
+
 
 
 export default function HomePanel({ onDocSelect, onUpload }) {
   const [drag, setDrag] = useState(false);
-
+  const navigate=useNavigate();
   const features = [
     { emoji: '💬', title: 'Ask Questions',    desc: 'Chat with your documents naturally',    accent: '#f5c518' },
     { emoji: '✨', title: 'Smart Summaries',  desc: 'Get concise overviews in seconds',      accent: '#f97316' },
@@ -27,7 +32,16 @@ export default function HomePanel({ onDocSelect, onUpload }) {
     { emoji: '🔍', title: 'Semantic Search',  desc: 'Find anything across all documents',    accent: '#ef4444' },
     { emoji: '💡', title: 'Extract Insights', desc: 'Surface hidden patterns & key data',    accent: '#f5c518' },
   ];
-
+  async function Logout(){
+    try{
+      await signOut(auth);
+      localStorage.removeItem("token");
+      navigate('/');
+    }
+    catch(error){
+      console.error("Logout error:",error)
+    }
+  }
   return (
     <div className="panel home-panel">
       <div className="home-panel__header">
@@ -50,7 +64,7 @@ export default function HomePanel({ onDocSelect, onUpload }) {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem variant="destructive">Log out</DropdownMenuItem>
+          <DropdownMenuItem variant="destructive" onClick={()=>{Logout()}}>Log out</DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu><mark>Genius</mark>
