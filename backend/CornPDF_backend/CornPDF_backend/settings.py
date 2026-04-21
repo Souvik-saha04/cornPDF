@@ -15,10 +15,22 @@ import user_accounts.firebase_admin
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 import os 
+import cloudinary
+
 from dotenv import load_dotenv
 load_dotenv()
 
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv("CLOUD_NAME"),
+    'API_KEY': os.getenv("API_KEY"),
+    'API_SECRET': os.getenv("API_SECRET"),
+}
 
+cloudinary.config(
+    cloud_name=os.getenv("CLOUD_NAME"),
+    api_key=os.getenv("API_KEY"),
+    api_secret=os.getenv("API_SECRET"),
+)
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
@@ -44,6 +56,7 @@ INSTALLED_APPS = [
     'user_accounts',
     'ai_engine',
     'documents',
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
@@ -93,7 +106,7 @@ DATABASES = {
     }
 }
 AUTH_USER_MODEL="user_accounts.User"
-
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 

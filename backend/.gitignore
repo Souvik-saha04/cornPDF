@@ -1,4 +1,8 @@
+# Virtual env
 venv/
-cornpdf-firebase-adminsdk-fbsvc-94f65f7884.json/
-*.json/
-.env/
+
+# Environment variables
+.env
+
+# Firebase service account (IMPORTANT)
+cornpdf-firebase-adminsdk-fbsvc-94f65f7884.json
